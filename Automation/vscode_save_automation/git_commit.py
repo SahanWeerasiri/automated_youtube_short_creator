@@ -61,7 +61,6 @@ if __name__ == "__main__":
     git_commit()
     # Clean up
     os.remove("diff.txt")
-    os.remove("response.json")
     os.chdir(pwd)
     print("Commit successful.")
     sys.exit(0)
