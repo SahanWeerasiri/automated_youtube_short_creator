@@ -112,10 +112,10 @@ def make_data_models(df):
     return data_models
 def main():
     # Download the PDF file
-    # download_pdf(sampele_url)
+    download_pdf(sampele_url)
 
     # Convert the PDF to CSV
-    # automated_pdf_to_xslx()
+    automated_pdf_to_xslx()
 
     # Read the XSLX file
     # Read the second sheet named "Table 2" from the Excel file
