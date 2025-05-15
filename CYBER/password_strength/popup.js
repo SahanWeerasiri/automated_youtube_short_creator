@@ -3,6 +3,12 @@ document.getElementById('passwordInput').addEventListener('input', function (e) 
     checkPasswordStrength(password);
 });
 
+document.getElementById('generatePassword').addEventListener('click', function () {
+    const password = generateRandomPassword();
+    document.getElementById('passwordInput').value = password;
+    checkPasswordStrength(password);
+});
+
 function checkPasswordStrength(password) {
     // Check requirements
     const hasMinLength = password.length >= 8;
@@ -41,4 +47,14 @@ function checkPasswordStrength(password) {
         strengthBar.style.backgroundColor = '#2ecc71'; // Green
         document.getElementById('strengthText').textContent = 'Strength: Strong';
     }
+}
+
+function generateRandomPassword(length = 12) {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+    }
+    return password;
 }

@@ -42,3 +42,21 @@ body {
 #requirements li.valid {
     color: #2ecc71;
 }
+
+.button {
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #2980b9;
+}
+
+#buttonContainer {
+    display: flex;
+    justify-content: space-between;
+}
