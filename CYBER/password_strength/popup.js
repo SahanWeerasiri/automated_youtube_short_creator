@@ -9,6 +9,17 @@ document.getElementById('generatePassword').addEventListener('click', function (
     checkPasswordStrength(password);
 });
 
+document.getElementById('showPassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.textContent = 'Hide Password';
+    } else {
+        passwordInput.type = 'password';
+        this.textContent = 'Show Password';
+    }
+});
+
 function checkPasswordStrength(password) {
     // Check requirements
     const hasMinLength = password.length >= 8;
@@ -49,12 +60,28 @@ function checkPasswordStrength(password) {
     }
 }
 
-function generateRandomPassword(length = 12) {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
-    let password = "";
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        password += charset[randomIndex];
+function generateRandomPassword(length = 15) {
+    // Define character sets
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const specials = "!@#$%^&*()_+[]{}|<>?";
+
+    // Ensure we have at least one of each required character type
+    let password = [
+        lowercase[Math.floor(Math.random() * lowercase.length)],
+        uppercase[Math.floor(Math.random() * uppercase.length)],
+        numbers[Math.floor(Math.random() * numbers.length)],
+        specials[Math.floor(Math.random() * specials.length)]
+    ].join('');
+
+    // Fill the rest with random characters from all sets
+    const allChars = lowercase + uppercase + numbers + specials;
+    while (password.length < length) {
+        const randomIndex = Math.floor(Math.random() * allChars.length);
+        password += allChars[randomIndex];
     }
-    return password;
+
+    // Shuffle the password to mix the required characters
+    return password.split('').sort(() => Math.random() - 0.5).join('');
 }
