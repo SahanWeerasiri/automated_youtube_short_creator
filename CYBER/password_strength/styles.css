@@ -1,0 +1,44 @@
+body {
+    width: 250px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#passwordInput {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#strengthMeter {
+    height: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#strengthBar {
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+#requirements {
+    padding-left: 20px;
+}
+
+#requirements li {
+    margin-bottom: 5px;
+    color: #777;
+}
+
+#requirements li.valid {
+    color: #2ecc71;
+}
