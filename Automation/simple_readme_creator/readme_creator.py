@@ -16,7 +16,7 @@ def readme_generator():
     # Get the list of files in the current directory
     files = os.listdir(".")
     # Filter out non-Python files
-    python_files = [f for f in files if f.endswith(".py")]
+    python_files = [f for f in files if f.endswith(".py") or f.endswith(".js") or f.endswith(".ts") or f.endswith(".tsx") or f.endswith(".jsx") or f.endswith(".html") or f.endswith(".css") or f.endswith(".json")]
     # Check if there are any Python files in the directory
     if not python_files:
         print("No Python files found in the current directory.")
