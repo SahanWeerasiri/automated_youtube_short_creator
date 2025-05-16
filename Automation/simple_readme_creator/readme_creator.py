@@ -64,11 +64,13 @@ def readme_generator():
     subprocess.run(["git", "add", "./README.md"], check=True)
     subprocess.run(["git", "commit", "-m", "Updated README.md"], check=True)
     
-    
+
 if __name__ == "__main__":
     directory = sys.argv[1] if len(sys.argv) > 1 else os.getcwd()
     pwd = os.getcwd()
     os.chdir(directory)
+
+    print(f"Generating README for {directory}...")
 
     # get the main file name from this directory .py/.js/...
     file_name = os.path.basename(directory)
