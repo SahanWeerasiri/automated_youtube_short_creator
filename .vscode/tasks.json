@@ -35,7 +35,7 @@
             "type": "shell",
             "command": "python",
             "args": [
-                "C:/Users/Sahan/Dark/personal/Automation/simple_readme_creator/readme_generator.py",
+                "C:/Users/Sahan/Dark/personal/Automation/simple_readme_creator/readme_creator.py",
             ],
             "group": {
                 "kind": "build",
