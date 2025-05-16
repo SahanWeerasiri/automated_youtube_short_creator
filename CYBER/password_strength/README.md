@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project is a Python application.
+This project is a Web Extension application.
 
 ## Project Structure
 

@@ -25,7 +25,30 @@ def readme_generator():
     with open("README.md", "w") as readme_file:
         readme_file.write("# README\n\n")
         readme_file.write("## Project Overview\n\n")
-        readme_file.write("This project is a Python application.\n\n")
+        
+        # send the files list to Gemini API and get the project overview
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "contents": [
+                {
+                    "parts": [{"text": "\n".join(python_files) + "\n\nPlease provide an overview of the above files."}],
+                }
+            ]
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+            sys.exit(1)
+
+        response_content = response.json()
+
+        # Extract the overview from the response
+        print("Response content:", response_content)
+        overview = response_content["candidates"][0]["content"]["parts"][0]["text"]
+        readme_file.write(f"{overview}\n\n")
+
         readme_file.write("## Project Structure\n\n")
         readme_file.write("The project structure is as follows:\n\n")
         readme_file.write("```\n")
