@@ -32,7 +32,7 @@ def readme_generator():
         payload = {
             "contents": [
                 {
-                    "parts": [{"text": "\n".join(python_files) + "\n\nPlease provide an overview of the above files."}],
+                    "parts": [{"text": "\n".join(python_files) + "\n\nPlease provide an overview of the above files only referring to the file names."}],
                 }
             ]
         }
