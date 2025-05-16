@@ -29,6 +29,33 @@
                 "$tsc"
             ],
             "detail": "Automated Git commit and push"
+        },
+        {
+            "label": "Automated README",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "C:/Users/Sahan/Dark/personal/Automation/simple_readme_creator/readme_generator.py",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "detail": "Generate simple README file"
         }
     ]
 }
