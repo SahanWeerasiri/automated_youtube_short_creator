@@ -11,9 +11,10 @@ async def start(update: Update, _context: CallbackContext) -> None:
     keyboard = [
         [InlineKeyboardButton(
             "Open Full Screen", 
-            web_app=WebAppInfo(url="https://intellifinance2.shancloudservice.com")
+            web_app=WebAppInfo(url="https://gameforge.com/en-US/littlegames/monster-up/#")
         )]
     ]
+    
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
