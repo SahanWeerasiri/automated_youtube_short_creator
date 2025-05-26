@@ -1,7 +1,0 @@
-diff --git a/Malware/venom/client-server-firebase-connection-flutter b/Malware/venom/client-server-firebase-connection-flutter
-new file mode 160000
-index 0000000..040b6fb
---- /dev/null
-+++ b/Malware/venom/client-server-firebase-connection-flutter
-@@ -0,0 +1 @@
-+Subproject commit 040b6fbc9d2920e3280e11e0af1648836f4ea3b8
