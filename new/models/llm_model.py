@@ -18,7 +18,6 @@ class llm_request:
 
 class llm_response_prompt_analysis:
     def __init__(self, text: str):
-        print("Parsing LLM response for prompt analysis...")
         text = text.strip()
         if text.startswith("```json"):
             text = text[7:].strip()
