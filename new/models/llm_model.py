@@ -25,6 +25,7 @@ class llm_response_prompt_analysis:
             text = text[:-3].strip()
         text = json.loads(text)
         self.app_name = text.get("app_name", "")
+        self.app_type = text.get("app_type", "")
         self.tech_stack = text.get("tech_stack", "")
         self.features = text.get("features", [])
         self.use_cases = text.get("use_cases", [])

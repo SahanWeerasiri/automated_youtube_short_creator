@@ -10,6 +10,7 @@ def prompt_analysis_prompt(prompt: str):
         {{
         "prompt_text": "<The original prompt text>",
         "app_name": "<Name of the application>",
+        "app_type": "<Type of application (e.g., web, mobile, desktop)>",
         "tech_stack": "<Technology stack used>",
         "features": ["<List of features>"],
         "use_cases": ["<List of use cases>"],
@@ -19,5 +20,6 @@ def prompt_analysis_prompt(prompt: str):
         }}
         ```
         Make sure to provide a comprehensive analysis of the prompt, focusing on the application's purpose, its intended users, and any specific technologies or features mentioned.
+        If the user doesn't mention a specific technology or feature, you can make reasonable assumptions based on common practices in the industry and fill the fields accordingly.
         Please ensure that the JSON is well-formed and includes all the required fields. If any field is not applicable or not mentioned in the prompt, you can leave it as an empty string or an empty list.
         """
