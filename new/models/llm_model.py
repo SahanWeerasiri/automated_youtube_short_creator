@@ -2,6 +2,7 @@ import json
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from models.feature_model import feature, dependency
 
 class llm_request:
     def __init__(self, prompt: str, model_name: str, temperature: float = 0.7):
@@ -32,3 +33,50 @@ class llm_response_prompt_analysis:
         self.target_audience = text.get("target_audience", "")
         self.description = text.get("description", "")
         self.other_details = text.get("other_details", "")
+
+class llm_response_feature_analysis:
+    def __init__(self, text: str):
+        text = text.strip()
+        if text.startswith("```json"):
+            text = text[7:].strip()
+        if text.endswith("```"):
+            text = text[:-3].strip()
+        print(text)
+        text = json.loads(text)
+        # Parse features
+        # Parse features
+        self.features = {}
+        self.feature_objects = {}
+        features_dict = text.get("features", {})
+        for fname, fdata in features_dict.items():
+            desc = fdata.get("description", "")
+            feat_obj = feature(name=fname, description=desc)
+            self.features[fname] = {
+            "description": desc
+            }
+            self.feature_objects[fname] = feat_obj
+
+        # Parse dependencies
+        self.dependencies = []
+        self.dependency_objects = []
+        dependencies_str = text.get("dependencies", "")
+        if dependencies_str:
+            dep_list = [d.strip() for d in dependencies_str.split(",")]
+            for dep in dep_list:
+                parts = dep.split("|")
+                if len(parts) == 3:
+                    feature1, dep_type, feature2 = parts
+                    feature1 = self.feature_objects.get(feature1.strip())
+                    feature2 = self.feature_objects.get(feature2.strip())
+                    dep_type = dep_type.strip()
+                    self.dependencies.append({
+                        "feature1": feature1,
+                        "dependency_type": dep_type,
+                        "feature2": feature2
+                    })
+                    # Build dependency object if features exist
+                    f1_obj = self.feature_objects.get(feature1)
+                    f2_obj = self.feature_objects.get(feature2)
+                    if f1_obj and f2_obj:
+                        dep_obj = dependency(feature1=f1_obj, feature2=f2_obj, dependency_type=dep_type)
+                        self.dependency_objects.append(dep_obj)

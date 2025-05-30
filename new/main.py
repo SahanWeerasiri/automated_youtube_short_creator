@@ -1,4 +1,5 @@
 from modules.prompt_analyzer import prompt_analyzer
+from modules.feature_analyzer import feature_analyzer
 from models.app import app
 
 
@@ -11,6 +12,12 @@ if __name__ == "__main__":
     analyzer = prompt_analyzer(test_prompt)
     analysis_result = analyzer.analyze()
     my_app.set_prompt_analysis_result(analysis_result)
+    analysis_result = my_app.to_dict()
+    print(analysis_result)
+
+    my_feature_analyzer = feature_analyzer(my_app)
+    analysis_result = my_feature_analyzer.analyze()
+    my_app.set_feature_analysis_result(analysis_result)
     analysis_result = my_app.to_dict()
     print(analysis_result)
 
