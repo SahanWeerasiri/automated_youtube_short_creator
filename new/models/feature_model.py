@@ -18,6 +18,7 @@ class dependency():
         self.feature_type = dependency_type
 
     def to_dict(self):
+        print(self.feature1.to_dict())
         return {
             "feature1": self.feature1.to_dict(),
             "feature2": self.feature2.to_dict(),

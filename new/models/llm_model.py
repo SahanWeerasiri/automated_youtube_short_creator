@@ -61,9 +61,9 @@ class llm_response_feature_analysis:
         self.dependency_objects = []
         dependencies_str = text.get("dependencies", "")
         if dependencies_str:
-            dep_list = [d.strip() for d in dependencies_str.split(",")]
+            dep_list = dependencies_str
             for dep in dep_list:
-                parts = dep.split("|")
+                parts = dep
                 if len(parts) == 3:
                     feature1, dep_type, feature2 = parts
                     feature1 = self.feature_objects.get(feature1.strip())
@@ -75,8 +75,8 @@ class llm_response_feature_analysis:
                         "feature2": feature2
                     })
                     # Build dependency object if features exist
-                    f1_obj = self.feature_objects.get(feature1)
-                    f2_obj = self.feature_objects.get(feature2)
+                    f1_obj = feature1
+                    f2_obj = feature2
                     if f1_obj and f2_obj:
                         dep_obj = dependency(feature1=f1_obj, feature2=f2_obj, dependency_type=dep_type)
                         self.dependency_objects.append(dep_obj)

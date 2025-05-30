@@ -38,7 +38,7 @@ def feature_analysis_prompt(app: app):
                 "description": "<Description of the feature>",
             }}
         }},
-        "dependencies": <list of "<feature1>"|"<feature2>"|"<dependency_type_between_features>">
+        "dependencies": <list of ["<feature1>","<feature2>","<dependency_type_between_features>"],[...]>
         }}
         ```
         For the dependencies use the same name in the feture name field.
