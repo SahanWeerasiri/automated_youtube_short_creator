@@ -354,10 +354,8 @@ def main(youtube_url: str, gemini_api_key: str, output_file: str):
         start, end = gemini.find_peak_moments(srt_content)
         
         # Step 4: Cut the video at the given timestamps
-        temp_dir = os.path.dirname(video_path)
-        clipped_path = os.path.join(temp_dir, 'clipped.mp4')
-        VideoEditor.cut_video(video_path, start, end, clipped_path)
-        
+        VideoEditor.cut_video(video_path, start, end, f'{output_file}.mp4')
+
         logger.info(f"Successfully created YouTube Short at {output_file}")
     except Exception as e:
         logger.error(f"Process failed: {e}")
