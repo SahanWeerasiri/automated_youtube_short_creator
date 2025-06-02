@@ -30,22 +30,33 @@ def git_commit():
 
     with open("diff.txt", "r") as diff_file:
         diff_content = diff_file.read()
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+        api_key = API_KEY
+        fallback_api_urls = [
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        ]
         headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [
                 {
-                    "parts": [{"text": diff_content+ "\n\nPlease provide a commit message for the above changes."}],
+                    "parts": [{"text": diff_content + "\n\nPlease provide a commit message for the above changes."}],
                 }
             ]
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-        if response.status_code != 200:
-            print(f"Error: {response.status_code}, {response.text}")
-            sys.exit(1)
+        response_content = None
+        for url in fallback_api_urls:
+            response = requests.post(url, headers=headers, json=payload)
+            if response.status_code == 200:
+                response_content = response.json()
+                break
+            else:
+                print(f"Model failed: {url.split('/models/')[1].split(':')[0]}, status: {response.status_code}")
 
-        response_content = response.json()
+        if not response_content:
+            print("All fallback models failed.")
+            sys.exit(1)
 
         # Extract the commit message from the response
         print("Response content:", response_content)
