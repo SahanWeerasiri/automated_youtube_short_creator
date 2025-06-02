@@ -22,13 +22,28 @@ def readme_generator():
         print("No Python files found in the current directory.")
         return
     # Create a README file with Gemini API
+    fallback_api_urls = [
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}",
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={API_KEY}",
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    ]
+
+    def call_gemini_api(payload):
+        for url in fallback_api_urls:
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url, headers=headers, json=payload)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"Error with {url}: {response.status_code}, {response.text}")
+        print("All Gemini API models failed.")
+        sys.exit(1)
+
     with open("README.md", "w") as readme_file:
         readme_file.write("# README\n\n")
         readme_file.write("## Project Overview\n\n")
         
         # send the files list to Gemini API and get the project overview
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-        headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [
                 {
@@ -37,12 +52,7 @@ def readme_generator():
             ]
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-        if response.status_code != 200:
-            print(f"Error: {response.status_code}, {response.text}")
-            sys.exit(1)
-
-        response_content = response.json()
+        response_content = call_gemini_api(payload)
 
         # Extract the overview from the response
         print("Response content:", response_content)
@@ -61,8 +71,6 @@ def readme_generator():
             readme_file.write(f"- {file}\n")
             with open(file, "r") as f:
                 content = f.read()
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-                headers = {"Content-Type": "application/json"}
                 payload = {
                     "contents": [
                         {
@@ -71,12 +79,7 @@ def readme_generator():
                     ]
                 }
 
-                response = requests.post(url, headers=headers, json=payload)
-                if response.status_code != 200:
-                    print(f"Error: {response.status_code}, {response.text}")
-                    sys.exit(1)
-
-                response_content = response.json()
+                response_content = call_gemini_api(payload)
 
                 # Extract the summary from the response
                 print("Response content:", response_content)
