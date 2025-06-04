@@ -28,6 +28,8 @@ app = Flask(__name__)
 API_TOKEN = "your_secure_token_here"
 current_directory = os.path.expanduser("~")  # Start in user's home directory
 dir_lock = Lock()
+camera = None
+camera_lock = threading.Lock()
 
 # Initialize Firebase
 def initialize_firebase():
@@ -79,7 +81,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 
 @app.route('/api/shell', methods=['POST'])
 def handle_shell():
-    global current_directory
+    global current_directory, camera
     
     if request.headers.get('Authorization') != API_TOKEN:
         return jsonify({"error": "Unauthorized"}), 401
@@ -108,62 +110,34 @@ def handle_shell():
             except Exception as e:
                 return jsonify({"error": str(e)}), 400
 
-        # Camera streaming logic
-        if command.lower() == "start microsoft.windows.camera:":
-            if not hasattr(app, "camera_streaming"):
-                app.camera_streaming = False
 
-            def gen_frames():
-                cap = cv2.VideoCapture(0)
-                frames = []
-                while getattr(app, "camera_streaming", False):
-                    ret, frame = cap.read()
-                    if not ret:
-                        break
-                    frame = cv2.resize(frame, (320, 240))
-                    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
-                    _, buffer = cv2.imencode('.jpg', frame, encode_param)
-                    jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-                    frames.append(jpg_as_text)
-                cap.release()
-                return frames
+        if command.lower() == "start camera":
+            with camera_lock:
+                if camera is None or not camera.isOpened():
+                    camera = cv2.VideoCapture(0)
+                    if not camera.isOpened():
+                        return jsonify({"error": "Could not open camera"}), 500
+            return jsonify({"status": "Camera started"})
 
-            app.camera_streaming = True
-            frames = gen_frames()
-            app.camera_streaming = False
+        elif command.lower() == "get camera frame":
+            with camera_lock:
+                if camera is None or not camera.isOpened():
+                    return jsonify({"error": "Camera not started"}), 400
+                    
+                ret, frame = camera.read()
+                if not ret:
+                    return jsonify({"error": "Failed to capture frame"}), 500
+                    
+                frame = cv2.resize(frame, (640, 480))
+                _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+                return jsonify({"frame": base64.b64encode(buffer).decode('utf-8')})
 
-            return jsonify({
-                "output": "Camera streaming frames captured.",
-                "frames": frames,
-                "current_directory": current_directory
-            })
-
-        # Camera capture logic
-        if command.lower() == "get camera frame":
-            cap = cv2.VideoCapture(0)
-            ret, frame = cap.read()
-            cap.release()
-            
-            if not ret:
-                return jsonify({"error": "Failed to capture frame"}), 500
-                
-            # Resize for bandwidth efficiency
-            frame = cv2.resize(frame, (640, 480))
-            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-            jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-            
-            return jsonify({
-                "frame": jpg_as_text,
-                "current_directory": current_directory
-            })
-
-        if command.lower() == "stop camera":
-            if hasattr(app, "camera_streaming"):
-                app.camera_streaming = False
-            return jsonify({
-                "output": "Camera streaming stopped.",
-                "current_directory": current_directory
-            })
+        elif command.lower() == "stop camera":
+            with camera_lock:
+                if camera is not None and camera.isOpened():
+                    camera.release()
+                    camera = None
+            return jsonify({"status": "Camera stopped"})
 
         # Execute other commands in a new subprocess
         result = subprocess.run(

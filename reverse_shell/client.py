@@ -10,42 +10,79 @@ API_TOKEN = "your_secure_token_here"
 class CameraViewer:
     def __init__(self):
         self.window_name = "Remote Camera Feed"
+        self.running = True
         cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
+        
+        # Start camera on server
+        try:
+            response = requests.post(
+                API_URL,
+                headers={"Authorization": API_TOKEN, "Content-Type": "application/json"},
+                json={"command": "start camera"},
+                timeout=2
+            )
+            if response.status_code != 200:
+                raise Exception("Failed to start camera on server")
+        except Exception as e:
+            print(f"Error starting camera: {e}")
+            self.running = False
+            return
+
         self.run()
-    
+
     def run(self):
-        while True:
+        while self.running:
             try:
+                # Get frame from server
                 response = requests.post(
                     API_URL,
                     headers={"Authorization": API_TOKEN, "Content-Type": "application/json"},
                     json={"command": "get camera frame"},
-                    timeout=2
+                    timeout=1
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
                     if "frame" in data:
                         frame_data = base64.b64decode(data["frame"].encode('utf-8'))
-                        np_arr = np.frombuffer(frame_data, np.uint8)
-                        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-                        
+                        frame = cv2.imdecode(np.frombuffer(frame_data, np.uint8), cv2.IMREAD_COLOR)
                         if frame is not None:
                             cv2.imshow(self.window_name, frame)
                 
-                # Check for window close or ESC key
-                key = cv2.waitKey(20)
-                if (cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1) or (key == 27):
+                # Check for exit conditions
+                if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
+                    self.stop()
+                    break
+                    
+                if cv2.waitKey(1) == 27:  # ESC key
+                    self.stop()
                     break
                     
             except requests.exceptions.RequestException as e:
+                if not self.running:  # If we're stopping, ignore errors
+                    break
                 print(f"Camera error: {e}")
+                self.stop()
                 break
-            except Exception as e:
-                print(f"Unexpected error: {e}")
-                break
-        
-        cv2.destroyAllWindows()
+
+    def stop(self):
+        if self.running:
+            self.running = False
+            try:
+                # Stop camera on server
+                requests.post(
+                    API_URL,
+                    headers={"Authorization": API_TOKEN, "Content-Type": "application/json"},
+                    json={"command": "stop camera"},
+                    timeout=1
+                )
+            except:
+                pass  # Ensure we always close the window even if stop fails
+            
+            try:
+                cv2.destroyWindow(self.window_name)
+            except:
+                pass
 
 class RemoteShell(cmd.Cmd):
     prompt = "remote> "
@@ -86,9 +123,9 @@ class RemoteShell(cmd.Cmd):
             print("Connection error:", e)
     
     def do_camera(self, arg):
-        """Start camera viewer"""
+        """Start camera viewer (press ESC or close window to stop)"""
         try:
-            CameraViewer()
+            viewer = CameraViewer()
         except Exception as e:
             print(f"Failed to start camera: {e}")
     
