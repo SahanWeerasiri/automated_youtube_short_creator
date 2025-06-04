@@ -19,39 +19,7 @@ xcopy "%current_dir%\server.py" "%work_dir%\" /Y >nul
 xcopy "%current_dir%\requirements.txt" "%work_dir%\" /Y >nul
 if exist "%current_dir%\.env" xcopy "%current_dir%\.env" "%work_dir%\" /Y >nul
 if exist "%current_dir%\serviceAccountKey.json" xcopy "%current_dir%\serviceAccountKey.json" "%work_dir%\" /Y >nul
-
-:: Create the WiFi-checking launcher batch file
-(
-echo @echo off
-echo :: Launcher script - waits for WiFi then starts server
-echo setlocal enabledelayedexpansion
-echo 
-echo :CHECK_WIFI
-echo echo [%date% %time%] Checking for internet connection...
-echo ping -n 1 8.8.8.8 ^>nul 2^>^&1
-echo if errorlevel 1 (
-echo     echo [%date% %time%] No internet. Retrying in 30 seconds...
-echo     timeout /t 30 /nobreak ^>nul
-echo     goto CHECK_WIFI
-echo )
-echo 
-echo :: First-time setup check
-echo if not exist "venv\\" (
-echo     echo [%date% %time%] Creating virtual environment...
-echo     python -m venv venv
-echo     call venv\Scripts\activate.bat
-echo     echo [%date% %time%] Installing requirements...
-echo     pip install --quiet --disable-pip-version-check -r requirements.txt
-echo ) else (
-echo     call venv\Scripts\activate.bat
-echo )
-echo 
-echo :: Run server
-echo echo [%date% %time%] Starting server...
-echo python server.py
-echo echo [%date% %time%] Server stopped or crashed. Restarting...
-echo goto CHECK_WIFI
-) > "%work_dir%\server_launcher.bat"
+xcopy "%current_dir%\server_launcher.bat" "%work_dir%\" /Y >nul
 
 :: Create a VBS script to run hidden
 (
