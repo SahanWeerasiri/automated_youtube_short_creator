@@ -1,4 +1,19 @@
 @echo off
+
+:: Get current username (most reliable method)
+set "username=%USERNAME%"
+
+:: Set directories
+set "work_dir=C:\Users\%username%\AppData\Local\Temp\py_server"
+
+:: Change directory (with error checking)
+if not exist "%work_dir%" (
+    echo Error: Working directory does not exist: %work_dir%
+    pause
+    exit /b 1
+)
+cd /d "%work_dir%"
+
 :: Launcher script - waits for WiFi then starts server
 setlocal enabledelayedexpansion
 

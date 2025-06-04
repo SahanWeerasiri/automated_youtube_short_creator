@@ -2,8 +2,8 @@
 :: run.bat - Manual setup script
 :: This should be run manually once to set up the persistent server
 
-:: Get current username
-for /f "tokens=2 delims==" %%A in ('wmic computersystem get username /value 2^>nul') do set "username=%%A"
+:: Get current username (more compatible method)
+for /f "tokens=2 delims=\" %%A in ('whoami') do set "username=%%A"
 
 :: Set directories
 set "current_dir=%~dp0"
@@ -28,9 +28,9 @@ echo WshShell.Run "cmd /c ""%work_dir%\server_launcher.bat""", 0, False
 ) > "%work_dir%\hidden_launcher.vbs"
 
 :: Add to startup (only if not already there)
-if not exist "%startup_dir%\PyServer.lnk" (
-    echo Creating startup shortcut...
-    powershell -command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%startup_dir%\PyServer.lnk');$s.TargetPath='wscript.exe';$s.Arguments='""%work_dir%\hidden_launcher.vbs""';$s.WorkingDirectory='%work_dir%';$s.WindowStyle=7;$s.Save()" >nul
+if not exist "%startup_dir%\hidden_launcher.vbs" (
+    echo Adding hidden_launcher.vbs to startup...
+    copy "%work_dir%\hidden_launcher.vbs" "%startup_dir%\" >nul
 )
 
 echo Setup complete! The server will:
